@@ -1,0 +1,166 @@
+<!DOCTYPE html><html lang="en" data-bs-theme="dark"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1"><meta name="description" content="L0pb - The easy way for loopback connections for local development with HTTPS support. Ideal for simple setup and management of local development environments."><meta name="keywords" content="Loopback, local development, Traefik, Docker, HTTPS, Let’s Encrypt, Wildcard certificate, localhost"><meta name="author" content="Jonathan Starck"><meta name="robots" content="index, follow"><meta property="og:title" content="L0pb - Loopback for your local development!"><meta property="og:description" content="L0pb enables simple loopback connections to localhost, including HTTPS support for local development environments."><meta property="og:type" content="website"><meta property="og:url" content="https://l0pb.me"><meta property="og:locale" content="en_US"><meta property="og:site_name" content="L0pb"><meta name="twitter:card" content="summary_large_image"><meta name="twitter:title" content="L0pb - Loopback for your local development!"><meta name="twitter:description" content="Use L0pb for simple loopback connections and HTTPS support in local development environments."><meta name="twitter:creator" content="@psycho0verload"><title>L0pb - Loopback for your local development!</title><link rel="stylesheet" href="assets/css/l0pb-bundle.min.css"><link rel="stylesheet" href="assets/css/l0pb.min.css"></head><body><header class="container"><nav class="navbar navbar-expand-lg"><div class="container-fluid"><button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation"><span class="navbar-toggler-icon"></span></button><div class="collapse navbar-collapse" id="navbarNav"><ul class="navbar-nav ms-auto"><li class="nav-item dropdown"><a class="nav-link dropdown-toggle" href="#" id="languageDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">Language</a><ul class="dropdown-menu dropdown-menu-end" aria-labelledby="languageDropdown"><li><a class="dropdown-item" href="index.html">German</a></li><li><a class="dropdown-item" href="index_en.html">English</a></li></ul></li></ul></div></div></nav><pre>
+__/\\\_________________/\\\\\\\___________________/\\\_________________________________________________        
+ _\/\\\_______________/\\\/////\\\________________\/\\\_________________________________________________       
+  _\/\\\______________/\\\____\//\\\___/\\\\\\\\\__\/\\\_________________________________________________      
+   _\/\\\_____________\/\\\_____\/\\\__/\\\/////\\\_\/\\\_________________/\\\\\__/\\\\\_______/\\\\\\\\__     
+    _\/\\\_____________\/\\\_____\/\\\_\/\\\\\\\\\\__\/\\\\\\\\\_________/\\\///\\\\\///\\\___/\\\/////\\\_    
+     _\/\\\_____________\/\\\_____\/\\\_\/\\\//////___\/\\\////\\\_______\/\\\_\//\\\__\/\\\__/\\\\\\\\\\\__   
+      _\/\\\_____________\//\\\____/\\\__\/\\\_________\/\\\__\/\\\_______\/\\\__\/\\\__\/\\\_\//\\///////___  
+       _\/\\\\\\\\\\\\\\\__\///\\\\\\\/___\/\\\_________\/\\\\\\\\\___/\\\_\/\\\__\/\\\__\/\\\__\//\\\\\\\\\\_ 
+        _\///////////////_____\///////_____\///__________\/////////___\///__\///___\///___\///____\//////////__           
+        </pre><div class="container d-none"><h1 class="display-3">L0pb - Loopback</h1><p class="lead">Loopback for your local development!</p></div></header><main class="mb-5"><div class="container mt-4"><h2 class="h4">Why L0pb?</h2><p>L0pb.me is a service that enables a loopback connection to localhost. All <code>*.l0pb.dev</code> and <code>*.l0pb.me</code> domains fundamentally point to <code>127.0.0.1</code>, the <code>localhost</code>. This is similar to services like traefik.me or nip.io. This significantly simplifies local development, including the use of certificates.</p><div class="table-responsive m-5"><table class="table"><tbody><tr><td>www.l0pb.me</td><td>resolves to</td><td>127.0.0.1</td></tr><tr><td>mywebsite.l0pb.me</td><td>resolves to</td><td>127.0.0.1</td></tr><tr><td>www.l0pb.dev</td><td>resolves to</td><td>127.0.0.1</td></tr><tr><td>mywebsite.l0pb.dev</td><td>resolves to</td><td>127.0.0.1</td></tr></tbody></table></div></div><div class="container mt-4"><h2 class="h4">HTTPS Support!</h2><p>Thanks to Let’s Encrypt, a wildcard certificate for <code>*.l0pb.dev</code> and <code>*.l0pb.me</code> is available.</p></div><div class="container mt-4"><h2 class="h4">Local Development</h2><p>This project is similar to the "DDEV" project but is much less demanding and complex. It is designed for simple local development. The only requirement is the l0pb-traefik image, a customized and pre-configured Traefik image.</p></div><div class="container mt-4 px-5"><div class="accordion" id="accordionPanel"><div class="accordion-item"><h3 class="accordion-header"><button class="accordion-button" type="button" data-bs-toggle="collapse" data-bs-target="#panelsStayOpen-collapseOne" aria-expanded="false" aria-controls="panelsStayOpen-collapseOne">#1 - Setting up L0pb-Traefik + MailHog</button></h3><div id="panelsStayOpen-collapseOne" class="accordion-collapse collapse show"><div class="accordion-body"><p>To use L0pb locally, you must first run the following <code>docker-compose.yml</code> on the local environment:</p><pre><code class="language-yaml">
+services:
+  traefik:
+    container_name: l0pb-traefik
+    hostname: l0pb-traefik
+    image: psycho0verload/l0pb-traefik
+    labels:
+      traefik.docker.network: proxy
+      traefik.enable: "true"
+      traefik.http.routers.traefik.entrypoints: websecure
+      traefik.http.routers.traefik.rule: Host(`traefik.l0pb.me`) || Host(`traefik.l0pb.dev`)
+      traefik.http.routers.traefik.service: api@internal
+      traefik.http.routers.traefik.tls: "true"
+      traefik.http.services.traefik.loadbalancer.sticky.cookie.httpOnly: "true"
+      traefik.http.services.traefik.loadbalancer.sticky.cookie.secure: "true"
+    networks:
+      proxy:
+        ipv4_address: 172.30.255.254
+        # Feste-IP am Ende der Range von 172.30.0.0/16
+        # Diese kann für Projekte auch als Proxy-Adresse verwendet werden
+    ports:
+      - mode: host
+        target: 80
+        published: "80"
+        protocol: tcp
+      - mode: host
+        target: 443
+        published: "443"
+        protocol: tcp
+    restart: unless-stopped
+    security_opt:
+      - no-new-privileges:true
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock:ro
+      - ./log/traefik/:/var/log/traefik/
+  mailhog:
+    image: mailhog/mailhog
+    hostname: l0pb-mailhog
+    container_name: l0pb-mailhog
+    labels:
+      traefik.docker.network: proxy
+      traefik.enable: "true"
+      traefik.http.routers.mailhog.entrypoints: websecure
+      traefik.http.routers.mailhog.rule: Host(`mailhog.l0pb.me`) || Host(`mailhog.l0pb.dev`)
+      traefik.http.routers.mailhog.tls: "true"
+      traefik.http.routers.mailhog.service: mailhog
+      traefik.http.services.mailhog.loadbalancer.server.port: "8025"
+    networks:
+      proxy:
+networks:
+  proxy:
+    name: proxy
+    driver: bridge
+    ipam:
+      config:
+      - subnet: 172.30.0.0/16
+    attachable: true
+</code></pre><p>Place the <code>docker-compose.yml</code> file in a directory and then start it with the command <code>docker compose up -d</code>. Once the container is loaded and started, you can check whether the project basically works via <a href="https://traefik.l0pb.dev" target="_blank"><code>https://traefik.l0pb.dev</code></a> or <a href="https://traefik.l0pb.me" target="_blank"><code>https://traefik.l0pb.me</code></a>. If the Traefik dashboard is displayed, the project is working:</p><img src="assets/images/traefik-dashboard.png" class="img-fluid"></div></div></div><div class="accordion-item"><h3 class="accordion-header"><button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#panelsStayOpen-collapseTwo" aria-expanded="false" aria-controls="panelsStayOpen-collapseTwo">#2 - Using L0pb-Traefik</button></h3><div id="panelsStayOpen-collapseTwo" class="accordion-collapse collapse"><div class="accordion-body"><p>Traefik is a reverse proxy that is used in this project for ports <code>80</code> and <code>443</code>. These ports can each only be assigned to a single container. However, to make multiple projects available at the same time and accessible via the mentioned ports, Traefik is used. The reverse proxy binds the ports to the <code>l0pb-traefik</code> container. This eliminates the need to open ports in the respective projects, as this would otherwise lead to conflicts and the configuration would not work. Below is an example of using <code>nginx</code>.</p><h4>Example</h4><pre><code class="language-yaml">
+services:
+  webserver:
+    image: nginx
+    ports:
+      - "80:80"
+    networks:
+      default:
+networks:
+  default:
+                        </code></pre><h4>Removing Ports</h4><pre><code class="language-yaml">
+services:
+  webserver:
+    image: nginx
+    networks:
+      default:
+networks:
+  default:
+                        </code></pre><p>No explicit port release is generally required. It is also not necessary for databases as long as the database is in the same network as the project.</p><h4>Add Labels and Network</h4><pre><code class="language-yaml">
+services:
+  webserver:
+    image: nginx
+    labels:
+      traefik.docker.network: proxy
+      traefik.enable: "true"
+      traefik.http.routers.projektname.entrypoints: websecure
+      traefik.http.routers.projektname.rule: Host(`projektname.l0pb.dev`)
+      traefik.http.routers.projektname.tls: "true"
+      traefik.http.routers.projektname.service: projektname
+      traefik.http.services.projektname.loadbalancer.server.port: "80"
+    networks:
+      default:
+      proxy:
+networks:
+  default:
+  proxy:
+    external: true
+</code></pre><ul><li><h5>Project Name</h5><p>The placeholder <code>projectname</code> is replaced with the actual project name. Example:<br><code>traefik.http.routers.my-nginx.service: my-nginx</code><br></p><p>The project name must be unique. No other project may use the same name.</p></li><li><h5>Domain Name</h5><p>The domain name is set under <code>Host(`projectname.l0pb.dev`)</code>. This domain name must also be unique but can be chosen independently of the project name. The backticks <code>`</code> are important.</p><ul><li><h6>Multiple Domain Names for the Same Port</h6><p>To use multiple domains for the same port, the following configuration can be used: <code>Host(`projectname.l0pb.dev`) || Host(`projectname.l0pb.me`)</code>.</p><pre><code class="language-yaml">
+traefik.docker.network: proxy
+traefik.enable: "true"
+traefik.http.routers.projectname.entrypoints: websecure
+traefik.http.routers.projectname.rule: Host(`projectname.l0pb.dev`) || Host(`projectname.l0pb.me`)
+traefik.http.routers.projectname.tls: "true"
+traefik.http.routers.projectname.service: projektname
+traefik.http.services.projectname.loadbalancer.server.port: "80"
+</code></pre></li><li><h6>Different Domain Names for Different Ports</h6><p>To use multiple HTTP ports for a single project, the configuration is as follows:</p><pre><code class="language-yaml">
+traefik.docker.network: proxy
+traefik.enable: "true"
+traefik.http.routers.projectname.entrypoints: websecure
+traefik.http.routers.projectname.rule: Host(`projectname.l0pb.dev`)
+traefik.http.routers.projectname.tls: "true"
+traefik.http.routers.projectname.service: projectname
+traefik.http.services.projectname.loadbalancer.server.port: "80"
+
+traefik.http.routers.projectname1.entrypoints: websecure
+traefik.http.routers.projectname1.rule: Host(`projectname.l0pb.me`)
+traefik.http.routers.projectname1.tls: "true"
+traefik.http.routers.projectname1.service: projectname1
+traefik.http.services.projectname1.loadbalancer.server.port: "8080"
+</code></pre><p>In this configuration, the domain <code>projectname.l0pb.dev</code> accesses port <code>80</code>, while the domain <code>projectname.l0pb.me</code> accesses port <code>8080</code>. Both accesses are via HTTPS.</p></li><li><h6>Further Details</h6><p>More information can be found in the <a href="https://doc.traefik.io/traefik/routing/routers/#host-and-hostregexp">official Traefik documentation</a></p></li></ul></li><li><h5>HTTP Port</h5><p>The HTTP port of the project is specified under <code>traefik.http.services.projectname.loadbalancer.server.port: "80"</code>.</p></li><li><h5>Certificate</h5><p>The certificate is provided by the reverse proxy, so the website is automatically accessed via HTTPS in the browser.</p></li></ul><h4>Using MailHog</h4><p>MailHog is also integrated into the <code>proxy</code> network. This makes it accessible to all containers in the <code>proxy</code> network under the hostname <code>l0pb-mailhog</code> or in the browser at <a href="https://mailhog.l0pb.dev" target="_blank"><code>mailhog.l0pb.dev</code></a> and <a href="https://mailhog.l0pb.me" target="_blank"><code>mailhog.l0pb.me</code></a>. An example usage would be: <code>/usr/sbin/sendmail -S l0pb-mailhog:1025</code>.</p></div></div></div><div class="accordion-item"><h3 class="accordion-header"><button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#panelsStayOpen-collapseThree" aria-expanded="false" aria-controls="panelsStayOpen-collapseThree">#3 - Example</button></h3><div id="panelsStayOpen-collapseThree" class="accordion-collapse collapse"><div class="accordion-body"><p>Here is an example of a local WordPress Docker environment with the L0pb project, available at <code>https://wordpress.l0pb.dev</code>:</p><pre><code class="language-yaml">
+services:
+  wordpress:
+    image: wordpress
+    restart: unless-stopped
+    environment:
+      WORDPRESS_DB_HOST: wordpress-db
+      WORDPRESS_DB_USER: exampleuser
+      WORDPRESS_DB_PASSWORD: examplepass
+      WORDPRESS_DB_NAME: wordpress
+    volumes:
+      - ./app:/var/www/html
+    labels:
+      traefik.docker.network: proxy
+      traefik.enable: "true"
+      traefik.http.routers.wordpress.entrypoints: websecure
+      traefik.http.routers.wordpress.rule: Host(`wordpress.l0pb.dev`)
+      traefik.http.routers.wordpress.tls: "true"
+      traefik.http.routers.wordpress.service: wordpress
+      traefik.http.services.wordpress.loadbalancer.server.port: "80"
+    networks:
+      default:
+      proxy:
+  wordpress-db:
+    image: mariadb:10.6-focal
+    restart: unless-stopped
+    environment:
+      MYSQL_DATABASE: wordpress
+      MYSQL_USER: exampleuser
+      MYSQL_PASSWORD: examplepass
+      MYSQL_RANDOM_ROOT_PASSWORD: '1'
+    volumes:
+      - ./database:/var/lib/mysql
+    networks:
+      default:
+networks:
+  proxy:
+    external: true
+    <code>
+    </code></code></pre><p>This example shows that the database does not require a port release because <code>wordpress</code> and <code>wordpress-db</code> are in the same Docker network <code>default</code>. The database is accessible within this network via its hostname <code>wordpress-db</code>. The database exposes its normal port within the Docker network and not externally. Thus, any number of databases can be operated simultaneously.</p></div></div></div></div></div></main><footer class="footer mt-auto py-3 border-top"><div class="container d-flex justify-content-between align-items-center"><span class="text-muted">&copy; Project <code>L0pb</code> by Psycho0verload (Jonathan Starck)</span> <span class="text-muted"><a href="https://github.com/Psycho0verload/l0pb" target="_blank" class="text-muted text-decoration-none"><i class="fab fa-github"></i> GitHub </a><a href="https://hub.docker.com/r/psycho0verload/l0pb-traefik" target="_blank" class="text-muted text-decoration-none ms-3"><i class="fab fa-docker"></i> Docker</a></span></div></footer><script src="assets/js/l0pb-bundle.min.js"></script><script src="assets/js/l0pb.min.js"></script></body></html>

@@ -91,11 +91,11 @@ services:
     labels:
       traefik.docker.network: proxy
       traefik.enable: "true"
-      traefik.http.routers.projektname.entrypoints: websecure
-      traefik.http.routers.projektname.rule: Host(`projektname.l0pb.dev`)
-      traefik.http.routers.projektname.tls: "true"
-      traefik.http.routers.projektname.service: projektname
-      traefik.http.services.projektname.loadbalancer.server.port: "80"
+      traefik.http.routers.projectname.entrypoints: websecure
+      traefik.http.routers.projectname.rule: Host(`projectname.l0pb.dev`)
+      traefik.http.routers.projectname.tls: "true"
+      traefik.http.routers.projectname.service: projectname
+      traefik.http.services.projectname.loadbalancer.server.port: "80"
     networks:
       default:
       proxy:

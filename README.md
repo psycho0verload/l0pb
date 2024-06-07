@@ -3,7 +3,7 @@ Author: Jonathan Starck (jonathan@starck.info)
 README.md (c) 2024
 Desc: description
 Created:  2024-06-07T15:29:50.092Z
-Modified: 2024-06-07T15:34:56.255Z
+Modified: 2024-06-07T19:44:12.707Z
 -->
 <details>
 <summary>README (deutsch)</summary>
@@ -67,6 +67,7 @@ services:
     image: mailhog/mailhog
     hostname: l0pb-mailhog
     container_name: l0pb-mailhog
+    restart: unless-stopped
     labels:
       traefik.docker.network: proxy
       traefik.enable: "true"
@@ -162,6 +163,7 @@ services:
     image: mailhog/mailhog
     hostname: l0pb-mailhog
     container_name: l0pb-mailhog
+    restart: unless-stopped
     labels:
       traefik.docker.network: proxy
       traefik.enable: "true"

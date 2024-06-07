@@ -1,0 +1,32 @@
+# Author: Jonathan Starck (jonathan@starck.info)
+# dynamic_conf.yml (c) 2024
+# Desc: description
+# Created:  2024-06-05T06:54:21.032Z
+# Modified: 2024-06-05T07:01:22.361Z
+
+tls:
+  certificates:
+    - certFile: "/etc/certs/dev-cert.pem"
+      keyFile: "/etc/certs/dev-key.pem"
+    - certFile: "/etc/certs/me-cert.pem"
+      keyFile: "/etc/certs/me-key.pem"
+
+http:
+  middlewares:
+    default:
+      chain:
+        middlewares:
+          - default-security-headers
+          - gzip
+    default-security-headers:
+      headers:
+        browserXssFilter: true
+        contentTypeNosniff: true
+        forceSTSHeader: true
+        frameDeny: true
+        stsIncludeSubdomains: true
+        stsPreload: true
+        stsSeconds: 31536000
+        customFrameOptionsValue: "SAMEORIGIN"
+    gzip:
+      compress: {}

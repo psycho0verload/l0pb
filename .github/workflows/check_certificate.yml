@@ -1,0 +1,57 @@
+name: Check Let's Encrypt Certificate
+on:
+  workflow_dispatch:
+  schedule:
+    - cron: '0 */5 * * *'
+jobs:
+  check-certificate:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+      - name: Install dependencies
+        run: |
+          sudo apt update
+          sudo apt install -y openssl curl
+      - name: Check certificate validity
+        id: run-docker-build
+        run: |
+          DOMAIN="l0pb.me"
+          CERT_INFO=$(echo | openssl s_client -servername $DOMAIN -connect $DOMAIN:443 2>/dev/null | openssl x509 -noout -dates)
+          START_DATE=$(echo "$CERT_INFO" | grep 'notBefore=' | cut -d= -f2)
+          START_DATE_SECONDS=$(date -d "$START_DATE" +%s)
+          CURRENT_DATE_SECONDS=$(date +%s)
+          DIFFERENCE=$((CURRENT_DATE_SECONDS - START_DATE_SECONDS))
+          if [ $DIFFERENCE -le 21600 ]; then  # 21600 seconds = 6 hours
+            echo "SSL certificate was created/renewed within the last 6 hours."
+            echo "run_docker_build=true" >> $GITHUB_OUTPUT
+          else
+            echo "SSL certificate has not been updated within the last 6 hours."
+            echo "run_docker_build=false" >> $GITHUB_OUTPUT
+          fi
+    outputs:
+      run_docker_build: ${{ steps.run-docker-build.outputs.run_docker_build }}
+  build-docker-image:
+    needs: check-certificate
+    if: ${{needs.check-certificate.outputs.run_docker_build == 'true'}}
+    runs-on: ubuntu-latest
+    steps:
+    - name: Checkout repository
+      uses: actions/checkout@v4
+    - name: Set up Docker Buildx
+      uses: docker/setup-buildx-action@v3
+    - name: Log in to Docker Hub
+      uses: docker/login-action@v3
+      with:
+        username: ${{ secrets.DOCKER_USERNAME }}
+        password: ${{ secrets.DOCKER_ACCESS_TOKEN }}
+    - name: Build and push Docker images
+      uses: docker/build-push-action@v5
+      with:
+        context: .
+        file: ./Dockerfile
+        push: true
+        platforms: linux/amd64,linux/arm64, linux/arm/v6, linux/arm/v7, linux/arm64/v8
+        tags: |
+          psycho0verload/l0pb-traefik:latest
+          psycho0verload/l0pb-traefik:${{ github.sha }}

@@ -1,0 +1,16 @@
+/*
+Author: Jonathan Starck (jonathan@starck.info)
+style.css (c) 2024
+Desc: description
+Created:  2024-06-04T08:22:17.737Z
+Modified: 2024-06-04T09:37:37.349Z
+*/
+
+header {
+    margin: 1em auto;
+}
+
+header pre {
+    margin: 0 auto;
+    font-size: max(0.5vw, 0.25rem);
+}
